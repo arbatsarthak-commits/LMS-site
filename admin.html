@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Learning Management System - Admin Dashboard">
+    <title>EduLMS - Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Check login status -->
+    <script>
+        const userSession = localStorage.getItem('lms_user');
+        if (!userSession) {
+            window.location.href = 'login.html';
+        } else {
+            const user = JSON.parse(userSession);
+            if (user.userType !== 'admin') {
+                window.location.href = user.userType === 'student' ? 'index.html' : 'login.html';
+            }
+        }
+    </script>
+
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Top Header -->
+    <header class="top-header" role="banner">
+        <div class="header-container">
+            <div class="brand-section">
+                <div class="logo">
+                    <span class="logo-icon">🎓</span>
+                    <span class="logo-text">EduLMS Admin</span>
+                </div>
+            </div>
+
+            <nav class="top-nav" role="navigation">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#courses" class="nav-link" data-page="courses">
+                            <span class="nav-icon">📚</span>
+                            <span class="nav-text">Courses</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#students" class="nav-link" data-page="students">
+                            <span class="nav-icon">👥</span>
+                            <span class="nav-text">Students</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#messages" class="nav-link" data-page="messages">
+                            <span class="nav-icon">💬</span>
+                            <span class="nav-text">Messages</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-profile">
+                    <span class="user-avatar" id="admin-avatar">TA</span>
+                    <span class="user-name" id="admin-name">Teacher</span>
+                    <button class="logout-btn" id="admin-logout-btn" aria-label="Logout">🚪</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout-container">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul class="sidebar-menu">
+                    <li class="menu-item">
+                        <a href="#dashboard" class="menu-link active" data-section="dashboard">
+                            <span class="menu-icon">🏠</span>
+                            <span class="menu-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#courses" class="menu-link" data-section="courses">
+                            <span class="menu-icon">📚</span>
+                            <span class="menu-text">My Courses</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#students" class="menu-link" data-section="students">
+                            <span class="menu-icon">👥</span>
+                            <span class="menu-text">Students</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#results" class="menu-link" data-section="results">
+                            <span class="menu-icon">📊</span>
+                            <span class="menu-text">Results</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#quizzes" class="menu-link" data-section="quizzes">
+                            <span class="menu-icon">📝</span>
+                            <span class="menu-text">Schedule Quizzes</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#attendance" class="menu-link" data-section="attendance">
+                            <span class="menu-icon">✅</span>
+                            <span class="menu-text">Mark Attendance</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#messages" class="menu-link" data-section="messages">
+                            <span class="menu-icon">💬</span>
+                            <span class="menu-text">Send Messages</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="main-content" role="main">
+            <!-- Admin Dashboard Section -->
+            <section class="content-section active" id="dashboard-section">
+                <div class="section-header">
+                    <h1 class="section-title">Admin Dashboard</h1>
+                    <p class="section-subtitle">Welcome! Here's an overview of your courses and students.</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="admin-courses-count">5</div>
+                            <div class="stat-label">Total Courses</div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="admin-students-count">3</div>
+                            <div class="stat-label">Total Students</div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="admin-quizzes-count">5</div>
+                            <div class="stat-label">Total Quizzes</div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="admin-assignments-count">4</div>
+                            <div class="stat-label">Active Assignments</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="admin-activity-section">
+                    <h2 class="subsection-title">Recent Activity</h2>
+                    <div class="activity-list" id="admin-activity-list">
+                        <!-- Activity items will be populated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Courses Section -->
+            <section class="content-section" id="courses-section">
+                <div class="section-header">
+                    <h1 class="section-title">My Courses</h1>
+                    <p class="section-subtitle">Manage your courses and course content</p>
+                </div>
+                <div class="courses-grid" id="admin-courses-list">
+                    <!-- Admin courses will be populated -->
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section class="content-section" id="students-section">
+                <div class="section-header">
+                    <h1 class="section-title">Students</h1>
+                    <p class="section-subtitle">View and manage your students</p>
+                </div>
+                <div class="students-container" id="students-container">
+                    <!-- Students will be populated -->
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="content-section" id="results-section">
+                <div class="section-header">
+                    <h1 class="section-title">Quiz Results</h1>
+                    <p class="section-subtitle">View all quiz results and student performance</p>
+                </div>
+                <div class="results-container" id="admin-results-container">
+                    <!-- Results will be populated -->
+                </div>
+            </section>
+
+            <!-- Schedule Quizzes Section -->
+            <section class="content-section" id="quizzes-section">
+                <div class="section-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div>
+                            <h1 class="section-title">Schedule Academic Quizzes</h1>
+                            <p class="section-subtitle">Plan, automate, and manage quizzes with flexible scheduling options</p>
+                        </div>
+                        <button class="btn btn-primary" id="schedule-new-quiz-btn" style="margin-top: 0;">
+                            <span>➕</span> Schedule New Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Creation Form (Hidden by default, shown when "Schedule New Quiz" is clicked) -->
+                <div id="quiz-creation-form-container" style="display: none; margin-bottom: 2rem;">
+                    <div style="background: white; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-md);">
+                        <h2 style="margin-bottom: 1.5rem; color: var(--primary-blue);">Create New Quiz</h2>
+                        <form class="message-form" id="schedule-quiz-form">
+                            <!-- Basic Information Section -->
+                            <div style="margin-bottom: 2rem;">
+                                <h3 style="margin-bottom: 1rem; color: var(--text-primary); border-bottom: 2px solid var(--border-light); padding-bottom: 0.5rem;">Basic Information</h3>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Quiz Title *</label>
+                                        <input type="text" class="form-input" id="quiz-title" placeholder="e.g., Python Basics Quiz" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Subject / Topic *</label>
+                                        <input type="text" class="form-input" id="quiz-subject" placeholder="e.g., Python Fundamentals" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-textarea" id="quiz-description" rows="3" placeholder="Brief description of the quiz..."></textarea>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Course *</label>
+                                        <select class="form-select" id="quiz-course" required>
+                                            <option value="">Select a course</option>
+                                            <option value="python">Introduction to Python</option>
+                                            <option value="webdev">Web Development</option>
+                                            <option value="database">Database Design</option>
+                                            <option value="ml">Machine Learning</option>
+                                            <option value="electronics">Electronics & Engineering</option>
+                                            <option value="math">Mathematics</option>
+                                            <option value="literature">Literature</option>
+                                            <option value="science">Science</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Difficulty Level *</label>
+                                        <select class="form-select" id="quiz-difficulty" required>
+                                            <option value="">Select difficulty</option>
+                                            <option value="easy">Easy</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="hard">Hard</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Total Marks</label>
+                                        <input type="number" class="form-input" id="quiz-marks" min="10" max="200" value="100">
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Number of Questions *</label>
+                                        <input type="number" class="form-input" id="quiz-questions" min="5" max="50" value="15" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Time Limit (minutes) *</label>
+                                        <input type="number" class="form-input" id="quiz-time" min="10" max="180" value="45" required>
+                                    </div>
+                                </div>
+
+                                <!-- Quiz Settings -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" id="quiz-random-order" style="width: auto;">
+                                            <span>Random Question Order</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" id="quiz-negative-marking" style="width: auto;">
+                                            <span>Negative Marking</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" id="quiz-multiple-attempts" style="width: auto;">
+                                            <span>Allow Multiple Attempts</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scheduling Options Section -->
+                            <div style="margin-bottom: 2rem;">
+                                <h3 style="margin-bottom: 1rem; color: var(--text-primary); border-bottom: 2px solid var(--border-light); padding-bottom: 0.5rem;">Scheduling Options</h3>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Schedule Type *</label>
+                                    <select class="form-select" id="schedule-type" required>
+                                        <option value="">Select schedule type</option>
+                                        <option value="fixed">Fixed Time Quiz</option>
+                                        <option value="recurring">Recurring Quiz</option>
+                                        <option value="on-demand">On-Demand / Flexible</option>
+                                        <option value="group">Group / Class Based</option>
+                                        <option value="prerequisite">Prerequisite-based</option>
+                                        <option value="progressive">Progressive Release</option>
+                                        <option value="challenge">Challenge Mode / Pop Quiz</option>
+                                    </select>
+                                </div>
+
+                                <!-- Fixed Time Options -->
+                                <div id="fixed-time-options" style="display: none; margin-top: 1rem;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div class="form-group">
+                                            <label class="form-label">Start Date & Time *</label>
+                                            <input type="datetime-local" class="form-input" id="quiz-start-datetime">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">End Date & Time *</label>
+                                            <input type="datetime-local" class="form-input" id="quiz-end-datetime">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recurring Options -->
+                                <div id="recurring-options" style="display: none; margin-top: 1rem;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div class="form-group">
+                                            <label class="form-label">Repeat Frequency *</label>
+                                            <select class="form-select" id="recurring-frequency">
+                                                <option value="daily">Daily</option>
+                                                <option value="weekly">Weekly</option>
+                                                <option value="monthly">Monthly</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Start Date & Time *</label>
+                                            <input type="datetime-local" class="form-input" id="recurring-start-datetime">
+                                        </div>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                        <div class="form-group">
+                                            <label class="form-label">End Date (Optional)</label>
+                                            <input type="date" class="form-input" id="recurring-end-date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 1.5rem;">
+                                                <input type="checkbox" id="auto-close-recurring" style="width: auto;">
+                                                <span>Auto-close after deadline</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- On-Demand Options -->
+                                <div id="on-demand-options" style="display: none; margin-top: 1rem;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div class="form-group">
+                                            <label class="form-label">Available From *</label>
+                                            <input type="datetime-local" class="form-input" id="on-demand-start">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Available Until *</label>
+                                            <input type="datetime-local" class="form-input" id="on-demand-end">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Group-Based Options -->
+                                <div id="group-options" style="display: none; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Assign To</label>
+                                        <div style="border: 2px solid var(--border-light); border-radius: var(--radius-md); padding: 1rem; max-height: 200px; overflow-y: auto;">
+                                            <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" value="all" id="group-all" style="margin-right: 0.5rem;">
+                                                <span>All Students</span>
+                                            </label>
+                                            <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" value="section-a" id="group-section-a" style="margin-right: 0.5rem;">
+                                                <span>Section A</span>
+                                            </label>
+                                            <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" value="section-b" id="group-section-b" style="margin-right: 0.5rem;">
+                                                <span>Section B</span>
+                                            </label>
+                                            <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" value="year-1" id="group-year-1" style="margin-right: 0.5rem;">
+                                                <span>Year 1</span>
+                                            </label>
+                                            <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" value="year-2" id="group-year-2" style="margin-right: 0.5rem;">
+                                                <span>Year 2</span>
+                                            </label>
+                                            <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" value="batch-2024" id="group-batch-2024" style="margin-right: 0.5rem;">
+                                                <span>Batch 2024</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Prerequisite Options -->
+                                <div id="prerequisite-options" style="display: none; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Prerequisite Quiz/Course *</label>
+                                        <select class="form-select" id="prerequisite-quiz">
+                                            <option value="">Select prerequisite</option>
+                                            <option value="quiz-1">Python Basics Quiz</option>
+                                            <option value="quiz-2">Web Development Quiz</option>
+                                            <option value="module-1">Module 1: Introduction</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Minimum Score Required (%)</label>
+                                        <input type="number" class="form-input" id="prerequisite-score" min="0" max="100" value="60">
+                                    </div>
+                                </div>
+
+                                <!-- Progressive Release Options -->
+                                <div id="progressive-options" style="display: none; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Unlock After</label>
+                                        <select class="form-select" id="progressive-unlock">
+                                            <option value="immediate">Immediately</option>
+                                            <option value="previous-quiz">Previous Quiz Completed</option>
+                                            <option value="days">After X Days</option>
+                                            <option value="date">Specific Date</option>
+                                        </select>
+                                    </div>
+                                    <div id="progressive-days-input" style="display: none; margin-top: 1rem;">
+                                        <div class="form-group">
+                                            <label class="form-label">Number of Days</label>
+                                            <input type="number" class="form-input" id="progressive-days" min="1" value="3">
+                                        </div>
+                                    </div>
+                                    <div id="progressive-date-input" style="display: none; margin-top: 1rem;">
+                                        <div class="form-group">
+                                            <label class="form-label">Unlock Date</label>
+                                            <input type="datetime-local" class="form-input" id="progressive-date">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Challenge Mode Options -->
+                                <div id="challenge-options" style="display: none; margin-top: 1rem;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div class="form-group">
+                                            <label class="form-label">Start Date & Time *</label>
+                                            <input type="datetime-local" class="form-input" id="challenge-start">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Duration (hours) *</label>
+                                            <input type="number" class="form-input" id="challenge-duration" min="0.5" max="24" step="0.5" value="1">
+                                        </div>
+                                    </div>
+                                    <div style="background: rgba(255, 193, 7, 0.1); padding: 1rem; border-radius: var(--radius-md); margin-top: 1rem;">
+                                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
+                                            ⚡ Challenge mode quizzes are time-limited events. Perfect for pop quizzes during lectures!
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Questions Section -->
+                            <div style="margin-bottom: 2rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3 style="margin: 0; color: var(--text-primary); border-bottom: 2px solid var(--border-light); padding-bottom: 0.5rem; width: 100%;">Quiz Questions</h3>
+                                </div>
+                                
+                                <div style="background: rgba(15, 76, 117, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                        Add questions to your quiz. You can add Multiple Choice (MCQ), Fill-in-the-blank, or Short Answer questions.
+                                    </p>
+                                    <button type="button" class="btn btn-primary" id="add-question-btn" style="margin-bottom: 1rem;">
+                                        <span>➕</span> Add Question
+                                    </button>
+                                </div>
+
+                                <!-- Questions List Container -->
+                                <div id="questions-list-container" style="margin-top: 1rem;">
+                                    <!-- Questions will be added here dynamically -->
+                                    <p id="no-questions-message" style="text-align: center; color: var(--text-secondary); padding: 2rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                                        No questions added yet. Click "Add Question" to start.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                                <button type="submit" class="btn btn-primary" id="submit-quiz-btn">Schedule Quiz</button>
+                                <button type="button" class="btn btn-outline" id="cancel-quiz-form-btn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Scheduled Quizzes Table View -->
+                <div style="background: white; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-md);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 class="subsection-title" style="margin: 0;">Scheduled Quizzes</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-outline" id="view-calendar-btn" style="padding: 0.5rem 1rem;">
+                                <span>📅</span> Calendar View
+                            </button>
+                            <select class="form-select" id="filter-status" style="width: auto; padding: 0.5rem;">
+                                <option value="all">All Status</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="active">Active</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="quiz-table-view">
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: var(--bg-secondary); border-bottom: 2px solid var(--border-light);">
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary);">Title</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary);">Subject</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary);">Type</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary);">Start Time</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary);">End Time</th>
+                                        <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-primary);">Status</th>
+                                        <th style="padding: 1rem; text-align: center; font-weight: 600; color: var(--text-primary);">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="quiz-table-body">
+                                    <!-- Quizzes will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Calendar View (Hidden by default) -->
+                    <div id="quiz-calendar-view" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <button class="btn btn-outline" id="prev-month-btn" style="padding: 0.5rem 1rem;">
+                                <span>←</span> Previous
+                            </button>
+                            <h3 id="calendar-month-year" style="margin: 0; color: var(--text-primary); font-size: 1.25rem;"></h3>
+                            <button class="btn btn-outline" id="next-month-btn" style="padding: 0.5rem 1rem;">
+                                Next <span>→</span>
+                            </button>
+                        </div>
+                        <div id="calendar-container" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-top: 1rem;">
+                            <!-- Calendar will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mark Attendance Section -->
+            <section class="content-section" id="attendance-section">
+                <div class="section-header">
+                    <h1 class="section-title">Mark Attendance</h1>
+                    <p class="section-subtitle">Mark attendance for students in each course</p>
+                </div>
+                <div class="attendance-marking-container">
+                    <div class="form-group">
+                        <label class="form-label">Select Course</label>
+                        <select class="form-select" id="attendance-course-select">
+                            <option value="">Select a course</option>
+                            <option value="python">Introduction to Python</option>
+                            <option value="webdev">Web Development</option>
+                            <option value="database">Database Design</option>
+                            <option value="ml">Machine Learning</option>
+                            <option value="electronics">Electronics & Engineering</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="attendance-date" required>
+                    </div>
+                    <div id="attendance-students-list" style="margin-top: 2rem;">
+                        <!-- Student attendance list will appear here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Send Messages Section -->
+            <section class="content-section" id="messages-section">
+                <div class="section-header">
+                    <h1 class="section-title">Send Messages</h1>
+                    <p class="section-subtitle">Send messages to students</p>
+                </div>
+                <div class="send-message-container">
+                    <form class="message-form" id="admin-message-form">
+                        <div class="form-group">
+                            <label class="form-label">Select Recipients</label>
+                            <div style="border: 2px solid var(--border-light); border-radius: var(--radius-md); padding: 1rem; max-height: 200px; overflow-y: auto;">
+                                <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="all" id="recipient-all" style="margin-right: 0.5rem;">
+                                    <span>All Students</span>
+                                </label>
+                                <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="Tanmay" id="recipient-tanmay" style="margin-right: 0.5rem;">
+                                    <span>Tanmay</span>
+                                </label>
+                                <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="Sarthak" id="recipient-sarthak" style="margin-right: 0.5rem;">
+                                    <span>Sarthak</span>
+                                </label>
+                                <label style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="Ayur" id="recipient-ayur" style="margin-right: 0.5rem;">
+                                    <span>Ayur</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Subject</label>
+                            <input type="text" class="form-input" id="message-subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-textarea" id="message-content" rows="6" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Question Editor Modal -->
+    <div class="modal" id="question-editor-modal" role="dialog" aria-hidden="true" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; overflow-y: auto;">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto; margin: 2rem auto; position: relative; z-index: 1001;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border-light);">
+                <h2 style="margin: 0; color: var(--primary-blue);">Add Question</h2>
+                <button class="modal-close" id="close-question-modal" aria-label="Close" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">
+                    &times;
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="question-form">
+                    <div class="form-group">
+                        <label class="form-label">Question Type *</label>
+                        <select class="form-select" id="question-type-select" required>
+                            <option value="">Select question type</option>
+                            <option value="mcq">Multiple Choice (MCQ)</option>
+                            <option value="fill-in-the-blank">Fill-in-the-blank</option>
+                            <option value="short-answer">Short Answer</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Question Text *</label>
+                        <textarea class="form-textarea" id="question-text" rows="3" placeholder="Enter your question here..." required></textarea>
+                    </div>
+
+                    <!-- MCQ Options -->
+                    <div id="mcq-options-section" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Options (Mark correct answer)</label>
+                            <div id="mcq-options-list">
+                                <!-- Options will be added here -->
+                            </div>
+                            <button type="button" class="btn btn-outline" id="add-option-btn" style="margin-top: 0.5rem;">
+                                <span>➕</span> Add Option
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Fill-in-the-blank Options -->
+                    <div id="fill-blank-options-section" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Correct Answer *</label>
+                            <input type="text" class="form-input" id="fill-blank-answer" placeholder="Enter the correct answer">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Accepted Answers (Optional - comma separated)</label>
+                            <input type="text" class="form-input" id="fill-blank-accepted" placeholder="e.g., answer1, answer2, answer3">
+                            <small style="color: var(--text-secondary); font-size: 0.875rem;">Separate multiple accepted answers with commas</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hint (Optional)</label>
+                            <input type="text" class="form-input" id="fill-blank-hint" placeholder="Provide a hint for students">
+                        </div>
+                    </div>
+
+                    <!-- Short Answer Options -->
+                    <div id="short-answer-options-section" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Correct Answer *</label>
+                            <textarea class="form-textarea" id="short-answer-answer" rows="2" placeholder="Enter the correct answer or expected response"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Accepted Answers (Optional - comma separated)</label>
+                            <input type="text" class="form-input" id="short-answer-accepted" placeholder="e.g., answer1, answer2">
+                            <small style="color: var(--text-secondary); font-size: 0.875rem;">Separate multiple accepted answers with commas</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hint (Optional)</label>
+                            <input type="text" class="form-input" id="short-answer-hint" placeholder="Provide a hint for students">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="button" class="btn btn-primary" id="save-question-btn">Save Question</button>
+                        <button type="button" class="btn btn-outline" id="cancel-question-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="question-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+
+    <script>
+        // Admin navigation handling
+        function initAdminNavigation() {
+            // Top nav links
+            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    switchAdminSection(page);
+                    updateActiveNav(link);
+                });
+            });
+
+            // Sidebar menu links
+            document.querySelectorAll('.menu-link[data-section]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    switchAdminSection(section);
+                    updateActiveMenu(link);
+                });
+            });
+        }
+
+        function switchAdminSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // Show target section
+            const targetSection = document.getElementById(`${section}-section`) || 
+                                 document.getElementById('dashboard-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+        }
+
+        function updateActiveNav(activeLink) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            activeLink.classList.add('active');
+        }
+
+        function updateActiveMenu(activeLink) {
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            activeLink.classList.add('active');
+        }
+
+        // Admin logout
+        document.getElementById('admin-logout-btn')?.addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('lms_user');
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Load admin data
+        const adminUserSession = localStorage.getItem('lms_user');
+        if (adminUserSession) {
+            const user = JSON.parse(adminUserSession);
+            if (document.getElementById('admin-name')) {
+                document.getElementById('admin-name').textContent = user.name || 'Admin';
+            }
+            if (document.getElementById('admin-avatar')) {
+                const initials = user.name ? user.name.split(' ').map(n => n[0]).join('') : 'AD';
+                document.getElementById('admin-avatar').textContent = initials;
+            }
+        }
+
+        // Initialize admin navigation
+        initAdminNavigation();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Learning Management System - Student Dashboard">
+    <title>EduLMS - Student Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Dynamic Theme System */
+        :root {
+            --transition-duration: 0.7s;
+            --transition-easing: ease-in-out;
+        }
+
+        body {
+            transition: background-color var(--transition-duration) var(--transition-easing),
+                        color var(--transition-duration) var(--transition-easing);
+        }
+
+        /* Academic Theme (Default) */
+        body[data-theme="academic"],
+        body[data-theme="academic"] .content-section,
+        body[data-theme="academic"] .quiz-type-content {
+            --theme-primary: #1E3A8A;
+            --theme-primary-dark: #1E40AF;
+            --theme-accent: #38BDF8;
+            --theme-bg: #F3F4F6;
+            --theme-text: #111827;
+            --theme-button-hover: linear-gradient(135deg, #2563EB 0%, #60A5FA 100%);
+        }
+
+        /* Mental Well-being Theme */
+        body[data-theme="wellbeing"],
+        body[data-theme="wellbeing"] .content-section,
+        body[data-theme="wellbeing"] .quiz-type-content {
+            --theme-primary: #A7F3D0;
+            --theme-primary-dark: #2DD4BF;
+            --theme-accent: #C7D2FE;
+            --theme-bg: #FFF7ED;
+            --theme-text: #334155;
+            --theme-button-hover: linear-gradient(135deg, #86EFAC 0%, #A5F3FC 100%);
+        }
+
+        /* Fun & Playful Theme */
+        body[data-theme="fun"],
+        body[data-theme="fun"] .content-section,
+        body[data-theme="fun"] .quiz-type-content {
+            --theme-primary: #FB7185;
+            --theme-primary-dark: #F97316;
+            --theme-accent: #FACC15;
+            --theme-bg: linear-gradient(135deg, #FDE68A 0%, #FBCFE8 100%);
+            --theme-text: #581C87;
+            --theme-button-hover: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+        }
+
+        /* Apply theme colors to quiz sections */
+        .quiz-type-content {
+            transition: all var(--transition-duration) var(--transition-easing);
+            background: var(--theme-bg);
+            color: var(--theme-text);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        body[data-theme="fun"] .quiz-type-content {
+            background: var(--theme-bg);
+        }
+
+        .quiz-type-tab {
+            transition: all var(--transition-duration) var(--transition-easing);
+        }
+
+        .quiz-type-tab.active {
+            background: var(--theme-primary);
+            color: white;
+        }
+
+        .quiz-type-tab:hover {
+            background: var(--theme-primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .quiz-card-item {
+            transition: all var(--transition-duration) var(--transition-easing);
+        }
+
+        .quiz-card-item:hover {
+            border-color: var(--theme-primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--theme-primary);
+            transition: all var(--transition-duration) var(--transition-easing);
+        }
+
+        .btn-primary:hover {
+            background: var(--theme-primary-dark);
+            background-image: var(--theme-button-hover);
+        }
+
+        /* Floating emoji animations for fun/wellbeing themes */
+        .theme-emoji {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2rem;
+            z-index: 1000;
+            animation: float-away 3s ease-out forwards;
+            opacity: 0.8;
+        }
+
+        @keyframes float-away {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* Theme indicator */
+        .theme-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            background: var(--theme-primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .theme-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body[data-theme="academic"] .theme-indicator::before {
+            content: "🎓 Focus Mode";
+        }
+
+        body[data-theme="wellbeing"] .theme-indicator::before {
+            content: "💚 Calm Mode";
+        }
+
+        body[data-theme="fun"] .theme-indicator::before {
+            content: "🎉 Fun Mode!";
+        }
+    </style>
+</head>
+<body data-theme="wellbeing">
+    <!-- Theme Indicator -->
+    <div class="theme-indicator" id="theme-indicator"></div>
+    
+    <!-- Check login status -->
+    <script>
+        // Check if user is logged in
+        const userSession = localStorage.getItem('lms_user');
+        if (!userSession) {
+            window.location.href = 'login.html';
+        } else {
+            const user = JSON.parse(userSession);
+            if (user.userType !== 'student') {
+                window.location.href = user.userType === 'admin' ? 'admin.html' : 'login.html';
+            }
+        }
+    </script>
+
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Motivational Quote Banner (shown after login) -->
+    <div class="quote-banner" id="quote-banner">
+        <div class="quote-content">
+            <span class="quote-icon">💪</span>
+            <span class="quote-text" id="quote-text">Loading motivational quote...</span>
+            <button class="quote-close" id="quote-close" aria-label="Close quote">×</button>
+        </div>
+    </div>
+
+    <!-- Top Header with Brand and Navigation -->
+    <header class="top-header" role="banner">
+        <div class="header-container">
+            <!-- Brand/Logo Section -->
+            <div class="brand-section">
+                <div class="logo">
+                    <span class="logo-icon">🎓</span>
+                    <span class="logo-text">EduLMS</span>
+                </div>
+            </div>
+
+            <!-- Top Navigation Links -->
+            <nav class="top-nav" role="navigation" aria-label="Main navigation">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#dashboard" class="nav-link active" aria-current="page" data-page="dashboard">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#quizzes" class="nav-link" data-page="quizzes">
+                            <span class="nav-icon">📝</span>
+                            <span class="nav-text">Quizzes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#courses" class="nav-link" data-page="courses">
+                            <span class="nav-icon">📚</span>
+                            <span class="nav-text">My Courses</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#assignments" class="nav-link" data-page="assignments">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-text">Assignments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#grades" class="nav-link" data-page="grades">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Grades</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#messages" class="nav-link" data-page="messages">
+                            <span class="nav-icon">💬</span>
+                            <span class="nav-text">Messages</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Notification and User Section -->
+            <div class="header-actions">
+                <button class="notification-btn" aria-label="Notifications" id="notification-btn">
+                    <span class="notification-icon">🔔</span>
+                    <span class="notification-badge" id="notification-count">0</span>
+                </button>
+                <div class="user-profile">
+                    <span class="user-avatar" id="user-avatar">JD</span>
+                    <span class="user-name" id="user-name">Student</span>
+                    <button class="logout-btn" id="logout-btn" aria-label="Logout" title="Logout">🚪</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout Container -->
+    <div class="layout-container">
+        <!-- Sidebar Navigation (ERP-style) -->
+        <aside class="sidebar" role="complementary" aria-label="Sidebar navigation">
+            <nav class="sidebar-nav">
+                <ul class="sidebar-menu">
+                    <li class="menu-item">
+                        <a href="#dashboard" class="menu-link active" data-section="dashboard">
+                            <span class="menu-icon">🏠</span>
+                            <span class="menu-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#my-courses" class="menu-link" data-section="courses">
+                            <span class="menu-icon">📖</span>
+                            <span class="menu-text">My Courses</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#assignments" class="menu-link" data-section="assignments">
+                            <span class="menu-icon">📋</span>
+                            <span class="menu-text">Assignments</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#quizzes" class="menu-link" data-section="quizzes">
+                            <span class="menu-icon">✍️</span>
+                            <span class="menu-text">Quizzes</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#grades" class="menu-link" data-section="grades">
+                            <span class="menu-icon">📊</span>
+                            <span class="menu-text">Grades</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#messages" class="menu-link" data-section="messages">
+                            <span class="menu-icon">💬</span>
+                            <span class="menu-text">Messages</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#attendance" class="menu-link" data-section="attendance">
+                            <span class="menu-icon">✅</span>
+                            <span class="menu-text">Attendance</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#profile" class="menu-link" data-section="profile">
+                            <span class="menu-icon">👤</span>
+                            <span class="menu-text">Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="main-content" role="main">
+            <!-- Dashboard Section -->
+            <section class="content-section active" id="dashboard-section">
+                <div class="section-header">
+                    <h1 class="section-title">Dashboard</h1>
+                    <p class="section-subtitle">Welcome back! Here's your learning overview.</p>
+                </div>
+
+                <!-- Course Overview Grid with Attendance -->
+                <div class="courses-grid">
+                    <!-- Course cards with attendance will be dynamically generated -->
+                </div>
+            </section>
+
+            <!-- My Courses Section -->
+            <section class="content-section" id="courses-section">
+                <div class="section-header">
+                    <div class="section-header-row">
+                        <div>
+                            <h1 class="section-title">My Courses</h1>
+                            <p class="section-subtitle">All your enrolled courses in one place</p>
+                        </div>
+                        <button class="btn btn-primary" id="explore-courses-btn">
+                            <span>🔍</span>
+                            Explore More Courses
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Courses Grid -->
+                <div class="courses-grid" id="courses-list">
+                    <!-- Courses will be populated by JavaScript -->
+                </div>
+
+                <!-- Explore More Courses Section (hidden by default) -->
+                <div class="explore-courses-section" id="explore-courses-section" style="display: none;">
+                    <h2 class="subsection-title">Available Courses</h2>
+                    <div class="courses-grid" id="available-courses-list">
+                        <!-- Available courses will be populated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Assignments Section -->
+            <section class="content-section" id="assignments-section">
+                <div class="section-header">
+                    <h1 class="section-title">Assignments</h1>
+                    <p class="section-subtitle">View and submit your course assignments</p>
+                </div>
+
+                <!-- Assignment Filter Tabs -->
+                <div class="assignment-filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All Assignments</button>
+                    <button class="filter-tab" data-filter="pending">Pending</button>
+                    <button class="filter-tab" data-filter="submitted">Submitted</button>
+                    <button class="filter-tab" data-filter="graded">Graded</button>
+                </div>
+
+                <!-- Assignments List -->
+                <div class="assignments-container" id="assignments-container">
+                    <!-- Assignments will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Quizzes Section (Two Types: Emotional/Fun and Academic) -->
+            <section class="content-section" id="quizzes-section">
+                <div class="section-header">
+                    <h1 class="section-title">Quizzes</h1>
+                    <p class="section-subtitle">Take quizzes to test your knowledge and well-being</p>
+                </div>
+
+                <!-- Quiz Type Tabs -->
+                <div class="quiz-type-tabs">
+                    <button class="quiz-type-tab active" data-quiz-type="emotional" data-theme="wellbeing">
+                        <span class="tab-icon">😊</span>
+                        <span class="tab-text">Emotional & Fun Quizzes</span>
+                        <span class="tab-badge">Well-being</span>
+                    </button>
+                    <button class="quiz-type-tab" data-quiz-type="academic" data-theme="academic">
+                        <span class="tab-icon">📚</span>
+                        <span class="tab-text">Academic Quizzes</span>
+                        <span class="tab-badge">Learning</span>
+                    </button>
+                    <button class="quiz-type-tab" data-quiz-type="skill-based" data-theme="academic">
+                        <span class="tab-icon">🎯</span>
+                        <span class="tab-text">Skill-based Quizzes</span>
+                        <span class="tab-badge">Skills</span>
+                    </button>
+                    <button class="quiz-type-tab" data-quiz-type="career" data-theme="academic">
+                        <span class="tab-icon">💼</span>
+                        <span class="tab-text">Career & Professional</span>
+                        <span class="tab-badge">Career</span>
+                    </button>
+                    <button class="quiz-type-tab" data-quiz-type="challenge" data-theme="fun">
+                        <span class="tab-icon">🏆</span>
+                        <span class="tab-text">Challenge Mode</span>
+                        <span class="tab-badge">Weekly</span>
+                    </button>
+                </div>
+
+                <!-- Emotional/Fun Quizzes Section -->
+                <div class="quiz-type-content active" id="emotional-quizzes">
+                    <div class="quiz-section-header">
+                        <h2 class="subsection-title">Emotional & Fun Quizzes</h2>
+                        <p class="subsection-description">
+                            Take these quizzes to check in with yourself, have fun, and maintain mental well-being.
+                            Your feedback helps us support you better!
+                        </p>
+                    </div>
+                    <div class="quizzes-grid" id="emotional-quizzes-grid">
+                        <!-- Emotional quizzes will be populated -->
+                    </div>
+                </div>
+
+                <!-- Academic Quizzes Section -->
+                <div class="quiz-type-content" id="academic-quizzes">
+                    <div class="quiz-section-header">
+                        <h2 class="subsection-title">Academic Quizzes</h2>
+                        <p class="subsection-description">Test your knowledge with subject-wise quizzes including MCQs, fill-in-the-blanks, and short answers</p>
+                    </div>
+
+                    <!-- Difficulty Filter Tabs -->
+                    <div class="quiz-filter-tabs" style="margin-bottom: 1rem;">
+                        <button class="filter-tab active" data-difficulty="all">All Levels</button>
+                        <button class="filter-tab" data-difficulty="easy">Easy</button>
+                        <button class="filter-tab" data-difficulty="medium">Medium</button>
+                        <button class="filter-tab" data-difficulty="hard">Hard</button>
+                    </div>
+
+                    <!-- Course Filter Tabs -->
+                    <div class="quiz-filter-tabs">
+                        <button class="filter-tab active" data-course="all">All Courses</button>
+                        <button class="filter-tab" data-course="python">Python</button>
+                        <button class="filter-tab" data-course="webdev">Web Dev</button>
+                        <button class="filter-tab" data-course="database">Database</button>
+                        <button class="filter-tab" data-course="ml">Machine Learning</button>
+                        <button class="filter-tab" data-course="electronics">Electronics</button>
+                        <button class="filter-tab" data-course="math">Mathematics</button>
+                        <button class="filter-tab" data-course="literature">Literature</button>
+                        <button class="filter-tab" data-course="science">Science</button>
+                    </div>
+
+                    <div class="quizzes-grid" id="academic-quizzes-grid">
+                        <!-- Academic quizzes will be populated -->
+                    </div>
+                </div>
+
+                <!-- Skill-based Quizzes Section -->
+                <div class="quiz-type-content" id="skill-based-quizzes">
+                    <div class="quiz-section-header">
+                        <h2 class="subsection-title">Skill-based Quizzes</h2>
+                        <p class="subsection-description">Focus on applied knowledge: coding logic, communication, entrepreneurship, and AI/tech awareness</p>
+                    </div>
+                    <div class="quizzes-grid" id="skill-based-quizzes-grid">
+                        <!-- Skill-based quizzes will be populated -->
+                    </div>
+                </div>
+
+                <!-- Career & Professional Development Section -->
+                <div class="quiz-type-content" id="career-quizzes">
+                    <div class="quiz-section-header">
+                        <h2 class="subsection-title">Career & Professional Development</h2>
+                        <p class="subsection-description">Prepare for real-world skills: resume building, interview readiness, workplace etiquette, and leadership</p>
+                    </div>
+                    <div class="quizzes-grid" id="career-quizzes-grid">
+                        <!-- Career quizzes will be populated -->
+                    </div>
+                </div>
+
+                <!-- Challenge Mode / Weekly Trivia Section -->
+                <div class="quiz-type-content" id="challenge-quizzes">
+                    <div class="quiz-section-header">
+                        <h2 class="subsection-title">Challenge Mode / Weekly Trivia</h2>
+                        <p class="subsection-description">Random mixed quiz for all subjects. Earn reward points, badges, and compete on the leaderboard!</p>
+                    </div>
+                    <div class="quizzes-grid" id="challenge-quizzes-grid">
+                        <!-- Challenge quizzes will be populated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grades Section -->
+            <section class="content-section" id="grades-section">
+                <div class="section-header">
+                    <h1 class="section-title">Grades & Results</h1>
+                    <p class="section-subtitle">View all your quiz results and grades</p>
+                </div>
+
+                <!-- Overall Statistics -->
+                <div class="grades-overview">
+                    <div class="grade-stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="avg-grade">85%</div>
+                            <div class="stat-label">Average Grade</div>
+                        </div>
+                    </div>
+                    <div class="grade-stat-card">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="completed-quizzes">12</div>
+                            <div class="stat-label">Quizzes Completed</div>
+                        </div>
+                    </div>
+                    <div class="grade-stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="best-grade">95%</div>
+                            <div class="stat-label">Best Score</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Results List -->
+                <div class="quiz-results-list" id="quiz-results-list">
+                    <!-- Quiz results will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Messages Section -->
+            <section class="content-section" id="messages-section">
+                <div class="section-header">
+                    <h1 class="section-title">Messages</h1>
+                    <p class="section-subtitle">Messages from your teachers and administrators</p>
+                </div>
+
+                <div class="messages-container" id="messages-container">
+                    <!-- Messages will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section class="content-section" id="attendance-section">
+                <div class="section-header">
+                    <h1 class="section-title">Attendance</h1>
+                    <p class="section-subtitle">Track your attendance across all enrolled courses</p>
+                </div>
+
+                <div class="attendance-container" id="attendance-container">
+                    <!-- Attendance will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section class="content-section" id="profile-section">
+                <div class="section-header">
+                    <h1 class="section-title">My Profile</h1>
+                    <p class="section-subtitle">View and manage your profile information</p>
+                </div>
+
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar-large" id="profile-avatar-large">JD</div>
+                            <div class="profile-info">
+                                <h2 class="profile-name" id="profile-name">Student Name</h2>
+                                <p class="profile-email" id="profile-email">email@student.edu</p>
+                                <span class="profile-role">Student</span>
+                            </div>
+                        </div>
+                        <div class="profile-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Student ID:</span>
+                                <span class="detail-value" id="profile-id">STU001</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Enrolled Courses:</span>
+                                <span class="detail-value" id="profile-courses">5</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Overall Progress:</span>
+                                <span class="detail-value" id="profile-progress">65%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Quiz Attempt Modal -->
+    <div class="modal" id="quiz-modal" role="dialog" aria-labelledby="quiz-modal-title" aria-hidden="true">
+        <div class="modal-content quiz-modal-content">
+            <!-- Quiz Header -->
+            <div class="quiz-header">
+                <div class="quiz-header-left">
+                    <h2 id="quiz-modal-title" class="quiz-title">Quiz Title</h2>
+                    <p class="quiz-subtitle" id="quiz-subtitle">Course Name</p>
+                </div>
+                <button class="modal-close" aria-label="Close quiz" id="close-quiz-modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Timer and Progress Bar -->
+            <div class="quiz-meta">
+                <div class="quiz-timer" id="quiz-timer">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-text">Time Remaining: <span id="time-display">30:00</span></span>
+                </div>
+                <div class="quiz-progress">
+                    <div class="progress-label">
+                        Question <span id="current-question">1</span> of <span id="total-questions">10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="quiz-progress-fill" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Container -->
+            <div class="quiz-body">
+                <div class="question-container" id="question-container">
+                    <h3 class="question-number" id="question-number">Question 1</h3>
+                    <p class="question-text" id="question-text">Question text will appear here</p>
+                    
+                    <!-- Answer Options -->
+                    <div class="options-container" id="options-container" role="radiogroup">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Footer with Navigation -->
+            <div class="quiz-footer">
+                <button class="btn btn-outline" id="prev-btn" disabled>
+                    ← Previous
+                </button>
+                <div class="question-nav-info">
+                    <span id="answered-count">0</span> of <span id="total-questions-footer">10</span> answered
+                </div>
+                <div class="quiz-actions">
+                    <button class="btn btn-secondary" id="review-btn">
+                        Review Later
+                    </button>
+                    <button class="btn btn-primary" id="next-btn">
+                        Next →
+                    </button>
+                    <button class="btn btn-success" id="submit-btn" style="display: none;">
+                        Submit Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emotional Quiz Feedback Modal -->
+    <div class="modal" id="feedback-modal" role="dialog" aria-labelledby="feedback-modal-title" aria-hidden="true">
+        <div class="modal-content feedback-modal-content">
+            <div class="modal-header">
+                <h2 id="feedback-modal-title" class="modal-title">How are you feeling?</h2>
+                <button class="modal-close" aria-label="Close feedback" id="close-feedback-modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="feedback-description">Your feedback helps us support you better. How did this quiz make you feel?</p>
+                <div class="feedback-options" id="feedback-options">
+                    <button class="feedback-option" data-feeling="great">
+                        <span class="feeling-emoji">😊</span>
+                        <span class="feeling-text">Great!</span>
+                    </button>
+                    <button class="feedback-option" data-feeling="good">
+                        <span class="feeling-emoji">🙂</span>
+                        <span class="feeling-text">Good</span>
+                    </button>
+                    <button class="feedback-option" data-feeling="okay">
+                        <span class="feeling-emoji">😐</span>
+                        <span class="feeling-text">Okay</span>
+                    </button>
+                    <button class="feedback-option" data-feeling="stressed">
+                        <span class="feeling-emoji">😟</span>
+                        <span class="feeling-text">A bit stressed</span>
+                    </button>
+                    <button class="feedback-option" data-feeling="overwhelmed">
+                        <span class="feeling-emoji">😰</span>
+                        <span class="feeling-text">Overwhelmed</span>
+                    </button>
+                </div>
+                <textarea class="feedback-textarea" id="feedback-textarea" placeholder="Any additional comments or thoughts? (Optional)"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="submit-feedback-btn">Submit Feedback</button>
+                <button class="btn btn-outline" id="skip-feedback-btn">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Submission Modal -->
+    <div class="modal" id="assignment-modal" role="dialog" aria-labelledby="assignment-modal-title" aria-hidden="true">
+        <div class="modal-content assignment-modal-content">
+            <div class="modal-header">
+                <h2 id="assignment-modal-title" class="modal-title">Submit Assignment</h2>
+                <button class="modal-close" aria-label="Close assignment" id="close-assignment-modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="assignment-details" id="assignment-details">
+                    <!-- Assignment details will be populated -->
+                </div>
+                <div class="file-upload-section">
+                    <label class="file-upload-label">
+                        <input type="file" id="assignment-file" class="file-input" accept=".pdf,.doc,.docx,.txt,.zip">
+                        <div class="file-upload-area">
+                            <span class="file-upload-icon">📁</span>
+                            <span class="file-upload-text">Click to upload or drag and drop</span>
+                            <span class="file-upload-hint">PDF, DOC, DOCX, TXT, ZIP (Max 10MB)</span>
+                        </div>
+                    </label>
+                    <div class="file-preview" id="file-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-assignment-btn">Cancel</button>
+                <button class="btn btn-primary" id="submit-assignment-btn" disabled>Submit Assignment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Summary Modal -->
+    <div class="modal" id="results-modal" role="dialog" aria-labelledby="results-modal-title" aria-hidden="true">
+        <div class="modal-content results-modal-content">
+            <div class="modal-header">
+                <h2 id="results-modal-title" class="modal-title">Quiz Results</h2>
+                <button class="modal-close" aria-label="Close results" id="close-results-modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Score Summary -->
+                <div class="results-summary">
+                    <div class="score-display">
+                        <div class="score-circle">
+                            <svg class="score-svg" viewBox="0 0 100 100">
+                                <circle class="score-bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="score-progress" cx="50" cy="50" r="45" id="score-circle"></circle>
+                            </svg>
+                            <div class="score-text">
+                                <span class="score-value" id="score-value">85</span>
+                                <span class="score-max">/ 100</span>
+                            </div>
+                        </div>
+                        <h3 class="score-label">Your Score</h3>
+                        <p class="score-grade" id="score-grade">Grade: B+</p>
+                    </div>
+                    <!-- Statistics Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card stat-correct">
+                            <div class="stat-icon">✓</div>
+                            <div class="stat-value" id="stat-correct">17</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                        <div class="stat-card stat-incorrect">
+                            <div class="stat-icon">✗</div>
+                            <div class="stat-value" id="stat-incorrect">3</div>
+                            <div class="stat-label">Incorrect</div>
+                        </div>
+                        <div class="stat-card stat-time">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-value" id="stat-time">24:35</div>
+                            <div class="stat-label">Time Taken</div>
+                        </div>
+                        <div class="stat-card stat-accuracy">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-value" id="stat-accuracy">85%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Question Breakdown -->
+                <div class="question-breakdown">
+                    <h3 class="breakdown-title">Question Breakdown</h3>
+                    <div class="questions-list" id="questions-breakdown">
+                        <!-- Question breakdown items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="retake-quiz-btn">Retake Quiz</button>
+                <button class="btn btn-primary" id="close-results-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modal-overlay" aria-hidden="true"></div>
+
+    <!-- Loading Spinner -->
+    <div class="loader" id="loader" aria-hidden="true">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

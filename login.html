@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LMS Platform - Login">
+    <title>EduLMS - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Login Page Specific Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #4ecdc4 100%);
+            padding: var(--spacing-lg);
+        }
+
+        .login-box {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 450px;
+            padding: var(--spacing-3xl);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .login-logo {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .login-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: var(--font-size-base);
+        }
+
+        .login-form {
+            margin-top: var(--spacing-xl);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-base);
+            font-family: var(--font-family);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(15, 76, 117, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            background: white;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: var(--font-family);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(15, 76, 117, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: var(--spacing-md);
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            margin-top: var(--spacing-lg);
+        }
+
+        .login-btn:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-red);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+            display: none;
+            font-size: var(--font-size-sm);
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+        }
+
+        .forgot-password a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">🎓</div>
+                <h1 class="login-title">Welcome to EduLMS</h1>
+                <p class="login-subtitle">Please sign in to continue</p>
+            </div>
+
+            <div class="error-message" id="error-message">
+                Invalid credentials. Please try again.
+            </div>
+
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="user-type">I am a:</label>
+                    <select class="form-select" id="user-type" required>
+                        <option value="">Select user type</option>
+                        <option value="student">Student</option>
+                        <option value="admin">Admin/Teacher</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="username">Username or Email</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="username" 
+                        placeholder="Enter your username or email"
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="password" 
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button type="submit" class="login-btn">Sign In</button>
+            </form>
+
+            <div class="forgot-password">
+                <a href="#" id="forgot-password-link">Forgot your password?</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // User credentials
+        const users = {
+            student: [
+                { username: 'student 1', password: '123', name: 'Student 1', email: 'student1@student.edu' }
+            ],
+            admin: [
+                { username: 'admin 1', password: '123', name: 'Admin 1', email: 'admin1@edu.edu', role: 'admin' }
+            ]
+        };
+
+        const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const userType = document.getElementById('user-type').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!userType) {
+                showError('Please select user type');
+                return;
+            }
+
+            // Check credentials
+            const userList = users[userType];
+            const user = userList.find(u => 
+                (u.username === username || u.email === username) && u.password === password
+            );
+
+            if (user) {
+                // Store user session
+                const sessionData = {
+                    ...user,
+                    userType: userType,
+                    loginTime: new Date().toISOString()
+                };
+                localStorage.setItem('lms_user', JSON.stringify(sessionData));
+
+                // Redirect based on user type
+                if (userType === 'student') {
+                    window.location.href = 'index.html';
+                } else {
+                    window.location.href = 'admin.html';
+                }
+            } else {
+                showError('Invalid username or password. Please try again.');
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Forgot password (placeholder)
+        document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Password reset feature coming soon! Please contact your administrator.');
+        });
+    </script>
+</body>
+</html>
+
